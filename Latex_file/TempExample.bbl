@@ -1,0 +1,39 @@
+\begin{thebibliography}{5}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{#1}
+\expandafter\ifx\csname urlstyle\endcsname\relax\else
+  \urlstyle{same}\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \DeclareUrlCommand\doi{\urlstyle{rm}}
+  \def\eprint#1#2{#2}
+\else
+  \def\doi#1{\href{https://doi.org/#1}{\nolinkurl{#1}}}
+  \let\eprint\href
+\fi
+
+\bibitem[CSDN()]{csdn-ql}
+CSDN.
+\newblock Q-learning-introduction\allowbreak[EB/OL].
+\newblock \url{https://blog.csdn.net/shoppingend/article/details/124291112}.
+
+\bibitem[Amazon()]{amazon}
+AMAZON.
+\newblock what-is-srasa\allowbreak[EB/OL].
+\newblock \url{https://www.amazonaws.cn/knowledge/what-is-sarsa/}.
+
+\bibitem[CSDN()]{csdn-dqn}
+CSDN.
+\newblock Dqn-introduction\allowbreak[EB/OL].
+\newblock \url{https://blog.csdn.net/Zhang_0702_China/article/details/123423637}.
+
+\bibitem[Ruoyu()]{Ruoyu}
+RUOYU.
+\newblock 强化学习中sarsa算法是不是比q-learning算法收敛速度更慢？\allowbreak[EB/OL].
+\newblock \url{https://www.zhihu.com/question/268461866}.
+
+\bibitem[enderfga()]{enderfga}
+ENDERFGA.
+\newblock Rl\allowbreak[EB/OL].
+\newblock \url{https://enderfga.cn/2022/11/22/RL/}.
+
+\end{thebibliography}
