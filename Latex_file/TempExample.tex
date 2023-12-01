@@ -24,7 +24,7 @@
 
 %%%%%%%%摘要
 \begin{empAbstract}
-  本次机器人综合实验的主题是无人机飞越冰湖。为了解决传统无人机避障算法中需要构建离线三维地图的问题，实验采用了基于马尔可夫决策过程的Qlearning、Sarsa和Double DQN（DDQN）算法。在Deterministic模式和Stochastic模式下的4x4及8x8地图上进行了相应的强化学习（RL）模型训练。通过性能比较，成功地在实机演示中控制无人机安全地飞越冰湖。
+  本次机器人综合实验的主题是无人机飞越冰湖。为了解决传统无人机避障算法中需要构建离线三维地图的问题，实验采用了基于马尔可夫决策过程的Qlearning、Sarsa和DQN算法。在Deterministic模式和Stochastic模式下的4x4及8x8地图上进行了相应的强化学习（RL）模型训练。通过性能比较，成功地在实机演示中控制无人机安全地飞越冰湖。
 \end{empAbstract}
 
 %%%%%%%%英文标题、作者、摘要、关键词
@@ -33,7 +33,7 @@
 \KeywordEn{Reinforcement learning, glacial lake problems, UAV}
 
 \begin{empAbstractEn}
-  The theme of this comprehensive robot experiment was the use of drones to fly over an ice lake. To address the issue of traditional drone obstacle avoidance algorithms requiring the construction of offline 3D maps, the experiment employed Qlearning, Sarsa, and Double DQN (DDQN) algorithms based on Markov Decision Processes. These algorithms were trained on corresponding Reinforcement Learning (RL) models on 4x4 and 8x8 maps under both Deterministic and Stochastic modes. Through performance comparisons, the experiment successfully demonstrated the control of drones flying over an ice lake in real machine demonstrations.
+  The theme of this comprehensive robot experiment was the use of drones to fly over an ice lake. To address the issue of traditional drone obstacle avoidance algorithms requiring the construction of offline 3D maps, the experiment employed Qlearning, Sarsa, and DQN algorithms based on Markov Decision Processes. These algorithms were trained on corresponding Reinforcement Learning (RL) models on 4x4 and 8x8 maps under both Deterministic and Stochastic modes. Through performance comparisons, the experiment successfully demonstrated the control of drones flying over an ice lake in real machine demonstrations.
 \end{empAbstractEn}
 
 %%%%%%%%首页角注，依次为实验时间、报告时间、学号、email
@@ -441,6 +441,50 @@ q-learning方法是optimal的，但会有风险，sarsa方法是安全的，但�
 但在面对随机环境时，其稳定性可能受到挑战。因此，在选择算法时，需要考虑到环境的特性以及算法的这些基本特征。\\
 \vbox{}
 
+\subsection{DQN算法结果与分析}
+DQN算法得益于它将深度学习与强化学习相结合的创新，与上两个算法有较大的区别，因此单独进行说明。
+下图是将所有回合以每10个一组进行编组，然后计算组内能够到达终点的回合的个数，并统计概率。
+
+可以看到，算法展现了优秀的收敛性，在1000回合之内就能够收敛在胜率为100处。
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{./img/result/dqn/dqn-winRate.png}
+  \caption{DQN-WinRate-Deterministic}
+\end{figure}
+当DQN算法应用于“冰湖”实验中，并与传统的Q-learning和Sarsa算法进行比较时，它展现出了一些独特的优势，
+尤其在快速达到高准确度方面。以下是与Q-learning和Sarsa相比，DQN在冰湖实验中的几个显著优点：
+
+\begin{enumerate}
+  \item DQN通过经验回放机制减少数据间的时间相关性，这在冰湖这种有潜在随机性的环境中尤为重要。而传统的Q-learning和Sarsa算法可能会因为连续的状态转移而受到较大的影响。
+  \item DQN利用固定Q目标和在线学习的方法，提高了算法的稳定性和效率。在Q-learning和Sarsa中，学习过程可能因为估计的Q值与目标Q值之间的相关性而变得不稳定，特别是在有随机性的环境中。
+  \item DQN使用非线性函数逼近（通过深度网络），这使得它在学习复杂函数映射方面比传统的线性方法（如表格形式的Q-learning和Sarsa）更有效。
+\end{enumerate}
+
+DQN的这些优势也伴随着更高的计算复杂度和对数据的依赖性，可能需要更多的计算资源和数据来实现其优越的性能。
+在Deterministic模式下，这些优势使得DQN能够更快地适应环境，学习有效的策略，
+并在较少的回合数内实现较高的准确度。
+
+但是这些优势在面对Stochastic模式的时候却带来了灾难性的后果。
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{./img/result/dqn/dqn-winRate-smode.png}
+  \caption{DQN-WinRate-Stochastic}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{./img/result/dqn/ddd.png}
+  \caption{DQN-Stochastic路径}
+\end{figure}
+
+经过分析，认为可能导致这一现象的原因如下：
+\begin{enumerate}
+  \item DQN使用的深度学习模型在面对高度随机和不确定的环境时可能难以有效学习。在Stochastic模式下，环境的每个状态转换都可能包含不确定性，这使得学习过程中对状态-动作对的价值估计变得复杂和不准确。
+  \item 虽然经验回放机制可以减少数据间的相关性并增加学习稳定性，但在高度随机的环境中，它可能不足以克服学习过程中的挑战。过去的经验可能因环境的随机性而变得不再适用，从而降低学习效率。
+  \item 在固定Q目标方法中，目标网络的更新可能滞后于主网络，这在确定性环境中有助于稳定学习，但在随机环境中可能导致不准确的价值估计，因为环境的变化速度可能超过了目标网络更新的速度。
+  \item DQN依赖于预测每个动作的潜在结果来决定其行动，但在Stochastic模式下，即使相同的状态和动作也可能导致不同的结果。这种不确定性使得DQN难以准确预测和学习最优策略。
+  \item DQN的性能在很大程度上依赖于高质量的训练样本。在随机环境中，获取具有代表性和一致性的训练样本更加困难，这可能导致模型无法有效学习。
+\end{enumerate}
+
 \section{问题与解决}
 \subsection{算法的效果展示与评估}
 在强化学习性能评估中，通常有两种主要的方法：一是计算平均得分（即reward），
@@ -493,45 +537,6 @@ q-learning方法是optimal的，但会有风险，sarsa方法是安全的，但�
 深度强化学习仍在不断发展之中，许多问题有待进一步探索和研究。我们团队也将持续学习相关知识，
 努力在这一前沿领域进行深入探索。
 
-%%=========================================================================
-
-% \section*{写在最后}
-% 在完成基于JMAG软件的三相永磁同步电机仿真分析的实验过程中，我经历了一段丰富而深刻的学习旅程，
-% 对此我十分高兴并满怀感激之情。
-
-% 首先，我要感谢我们的指导老师，您对三相永磁同步电机领域的深入讲解和专业指导，
-% 使我得以将课堂上的理论知识与JMAG软件的实际操作相结合，从而深化了我的理解和掌握。
-% 每次课堂上的精彩讲解都是如同指引航标，引导我在控制理论的海洋中航行。
-% 这次实验不仅仅是对我所学知识的应用，更是一次宝贵的实践机会，
-% 让我对永磁同步电机的工作原理有了更加深刻的认识。
-
-% 同时，我也要特别感谢那些在网络上分享知识和经验的前辈和同行。
-% 他们的文章和讨论为我提供了宝贵的参考资料，帮助我在遇到困难时找到了解决问题的思路。
-% 特别是那些详细的JMAG操作指南
-% 我也要特别感谢方桂安学长。虽然去年的作业要求与今年的不同，
-% 但学长去年在博客上分享的报告\cite{JMAG}对我产生了深远的影响。在他的报告中，
-% 我看到了深入浅出的解析和清晰的逻辑思维。您的报告让我深受启发，
-% 也使我对电机的学习有了更深的认识和理解。我把您的博客网址和引用都标在了文末，
-% 以表达我对您贡献的尊重和感谢。
-
-% 这个实验过程不仅仅是对专业知识的应用，更是一次自我挑战和成长的历程。
-% 在实验中，我不断地查阅资料，深入研究，理解和吸收了很多课堂上没有完全明白的知识点。
-% 每一个小的发现和进步都让我感到无比的兴奋和满足。
-% 然而，我也意识到我的水平还相当有限，还有很多东西我完全不了解或是一知半解，还有很多知识等待我去探索和学习。
-% 我将把握住这次作业的契机，继续深入学习电机相关知识，争取能够了解很多，学会更多。
-
-% 本着开源精神，我也将本次作业的所有模型和完成报告所用的\LaTeX 源文件全部托管在了GitHub仓库中，
-% 以便老师和同学们进行浏览。
-
-% 我诚挚地邀请每一位对此感兴趣的老师和同学，前往我的GitHub仓库查阅代码，
-% 提出您的宝贵建议和批评。任何形式的反馈和建议，无论是关于代码的优化，
-% 还是对于实验方法和结果的讨论，我都将热烈欢迎。我将珍惜所获得的一切知识和经验，
-% 并继续在电机学的学习道路上不懈努力.
-
-
-% GitHub repository URL: 
-
-% \href{https://github.com/pbcn2/2023-HW-JMAG-three\_phase\_PMSM}{https://github.com/pbcn2/2023-HW-JMAG-three\_phase\_PMSM}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  参考文献
