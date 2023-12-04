@@ -4,7 +4,7 @@
 
 ### 脱机模拟
 
-代码存放在offline文件夹中
+代码存放在code文件夹中
 
 #### q_learning & Sarsa
 
